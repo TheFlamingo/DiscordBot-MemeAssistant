@@ -33,7 +33,7 @@ public class DatabaseHealthCommand extends ListenerAdapter {
 			errorFlag[0] = true;
 			errorFound = true;
 		}
-		if (MemeLinksDB.memeDB.size() != MemeLinksDB.memeList.size()) {
+		if (MemeLinksDB.memeDB.size() != getFilledDBLists()) {
 			errorFlag[1] = true;
 			errorFound = true;
 		}

@@ -37,8 +37,8 @@ public class MemeAddCommand extends ListenerAdapter{
 		else if (strArgs[3].length() < 2) {
 			return false;
 		}
-		if (!strArgs[2].contains("https") || !strArgs[2].contains("https")) { //this is a really bad way to check if index[3] is a link
-			return false;
+		if (strArgs[2].contains("https") || strArgs[2].contains("https")) { //this is a really bad way to check if index[3] is a link
+			return true;
 		}
 		return true;
 	}

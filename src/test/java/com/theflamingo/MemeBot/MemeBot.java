@@ -24,5 +24,6 @@ public class MemeBot extends ListenerAdapter {
 		jda.addEventListener(new MemeRemoveCommand());
 		jda.addEventListener(new DatabaseHealthCommand());
 		SaveMemes.read(); //loads saved memes
+		SaveMemes.backupDatabase();
 	}
 }

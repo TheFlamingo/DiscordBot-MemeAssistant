@@ -19,10 +19,12 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 public class SaveMemes extends ListenerAdapter{
 	public static File saveFile = new File("C:/Users/Noaha/Desktop/MemeBot save files/save.txt");
 	
-	public static boolean[] errorFlag = new boolean[3]; //represents different discrepancies in loading. See comments in checkDatabase() 
+	//represents different discrepancies in loading. See comments in checkDatabase()
+	public static boolean[] errorFlag = new boolean[3];  
 	
-	public static List<List<String>> memeDBBackup; //this will store the latest version of the database, so it can be restored if there is an error in loading
-	public static List<String> memeListBackup; //read above ^
+	//this will store the latest version of the database, so it can be restored if there is an error in loading
+	public static List<List<String>> memeDBBackup; 
+	public static List<String> memeListBackup; 
 	
 	public void onMessageReceived(MessageReceivedEvent evt) { 
 		
@@ -41,7 +43,6 @@ public class SaveMemes extends ListenerAdapter{
 			}
 			else if ((strArgs[0] + strArgs[1]).equals(Ref.PREFIX + "load")) {
 				try {
-					backupDatabase();
 					read();
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
@@ -51,6 +52,7 @@ public class SaveMemes extends ListenerAdapter{
 		} catch (ArrayIndexOutOfBoundsException e) {}	
 	}
 	
+	//stores current values of memeDB and memeList to variables in this class. If anything breaks, we will restore using those variables.
 	public static void backupDatabase() {
 		
 		memeDBBackup = MemeLinksDB.memeDB;
@@ -58,7 +60,7 @@ public class SaveMemes extends ListenerAdapter{
 	}
 	
 	public static void revertDatabase() {
-		
+
 		MemeLinksDB.memeDB = memeDBBackup;
 		MemeLinksDB.memeList = memeListBackup;
 	}
@@ -71,10 +73,14 @@ public class SaveMemes extends ListenerAdapter{
 		for (int i = 0; i < MemeLinksDB.memeList.size(); i++) {
 			pw.println(MemeLinksDB.memeList.get(i));
 		}
-		pw.println("memeDB-size"); //marker for read() to tell how many        VVV        it should run
-		pw.println(MemeLinksDB.memeDB.size()); //this is used for how many memeDB.add(new ArrayList<String>()); statements should be run when reinitalizing them
-		pw.println("memeDB-links"); //
-		for (int i = 0; i < MemeLinksDB.memeDB.size(); i++) {
+		//marker for read() to assign the next line to maxIterations
+		pw.println("memeDB-size"); 
+		//this is used for how many memeDB.add(new ArrayList<String>()); statements should be run when initializing them
+		pw.println(MemeLinksDB.memeDB.size()); 
+		//marker for read() to assign the next lines until next keyword to memeDB (as in it adds the links)
+		pw.println("memeDB-links"); 
+		//this is here to fix remove the weird brackets that are added when printing the links.
+		for (int i = 0; i < MemeLinksDB.memeDB.size(); i++) { 
 			String finishedString = MemeLinksDB.memeDB.get(i).get(0);
 			finishedString.replace("[", "");
 			pw.println(finishedString);
@@ -88,12 +94,17 @@ public class SaveMemes extends ListenerAdapter{
 		
 		String temp;
 		
-		boolean readMemeList = false;
-		boolean readMemeDBSize = false;
-		boolean readMemeDBLinks = false;
+		boolean readMemeList = false; //is set to true when Scanner reads "memeList"
+		boolean readMemeDBSize = false; //is set to true when Scanner reads "memeDB-size"
+		boolean readMemeDBLinks = false; //is set to true when Scanner reads "memeDB-links"
 		
+		//this variable is used to get which List under memeDB the next link that is read will be added to.
 		int linkIndex = 0;
-		int maxIterations = 0;
+		//this variable stores how many iterations of memeDB.add(new ArrayList<String>()); should be run. This adds the String lists in the master list of MemeDB
+		int maxIterations = 0; 
+		
+		MemeLinksDB.memeDB = new ArrayList<List<String>>(); //backup breaks without wiping the variables. This needs to be here.
+		MemeLinksDB.memeList = new ArrayList<String>();
 		
 		while (inFile.hasNextLine()) {
 			temp = inFile.nextLine();
@@ -144,30 +155,43 @@ public class SaveMemes extends ListenerAdapter{
 	}
 	
 		public static boolean checkDatabase(int addedLinks, int linkDBSize) {
-		
-		//if the size of size of memeList does not equal the amount of added links, there's a discrepancy in the database 
-		if (MemeLinksDB.memeList.size() != addedLinks) { 
+			
+		//if the size of size of memeList does not equal the amount of added links, there's a discrepancy in the database
+		try {
+			if (MemeLinksDB.memeList.size() != addedLinks) errorFlag[0] = true;
+			
+		} catch (Exception e) {
 			errorFlag[0] = true;
 			
 			return false;
 		}
 		//if the amount of link Lists does not equal the size of memeList, there's a discrepancy in the database. This is separate
-		if (linkDBSize != MemeLinksDB.memeList.size()) { //from the first error because of Lists added vs Links added to these lists.
+		try {
+			if (linkDBSize != MemeLinksDB.memeList.size()) errorFlag[1] = true; //from the first error because of Lists added vs Links added to these lists.
+		} catch (Exception e) {
 			errorFlag[1] = true;
 			
 			return false;
 		}
 		//if the size of the link database does not equal the amount of added links, there's a discrepancy in the database
-		else if (linkDBSize != addedLinks) {
+		try {
+			if (linkDBSize != addedLinks) errorFlag[2] = true;
+		} catch (Exception e) {
 			errorFlag[2] = true;
 			
 			return false;
 		}
 		
+		
 		System.out.println("Error flag 0 returns " + errorFlag[0]);
 		System.out.println("Error flag 1 returns " + errorFlag[1]);
 		System.out.println("Error flag 2 returns " + errorFlag[2]);
 		
-		return true;
+		if (errorFlag[0] || errorFlag[1] || errorFlag[2]) {
+			return false;
+		}
+		else {
+			return true;
+		}
 	}
 }
