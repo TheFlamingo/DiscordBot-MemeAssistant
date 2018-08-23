@@ -15,7 +15,7 @@ public class MemeBot extends ListenerAdapter {
 		
 		jda.getPresence().setGame(Game.playing("meme help"));
 		
-		jda.addEventListener(new MemeCommand());
+		jda.addEventListener(new SendMemeCommand());
 		jda.addEventListener(new MemeSetChannelCommand());
 		jda.addEventListener(new MemeAddCommand());
 		jda.addEventListener(new SuggestMemeCommand());
