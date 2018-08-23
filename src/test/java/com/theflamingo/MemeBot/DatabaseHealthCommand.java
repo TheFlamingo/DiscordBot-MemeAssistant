@@ -24,20 +24,38 @@ public class DatabaseHealthCommand extends ListenerAdapter {
 	}
 
 	public void checkDatabaseHealth(MessageReceivedEvent evt) {
+		
 		boolean[] errorFlag = new boolean[3];
 		boolean errorFound = false; //is set to true if any errors in the database are found
 		
 		// if the size of size of memeList does not equal the amount of added
 		// links, there's a discrepancy in the database
-		if (MemeLinksDB.memeList.size() != getFilledDBLists()) {
+		try {
+			if (MemeLinksDB.memeList.size() != getFilledDBLists()) {
+				errorFlag[0] = true;
+				errorFound = true;
+			}
+		} catch (Exception e) {
 			errorFlag[0] = true;
 			errorFound = true;
 		}
-		if (MemeLinksDB.memeDB.size() != getFilledDBLists()) {
+		
+		try {
+			if (MemeLinksDB.memeDB.size() != getFilledDBLists()) {
+				errorFlag[1] = true;
+				errorFound = true;
+			}
+		} catch (Exception e) {
 			errorFlag[1] = true;
 			errorFound = true;
 		}
-		if (MemeLinksDB.memeList.size() != MemeLinksDB.memeDB.size()) {
+		
+		try {
+			if (MemeLinksDB.memeList.size() != MemeLinksDB.memeDB.size()) {
+				errorFlag[2] = true;
+				errorFound = true;
+			}
+		} catch (Exception e) {
 			errorFlag[2] = true;
 			errorFound = true;
 		}
@@ -46,6 +64,7 @@ public class DatabaseHealthCommand extends ListenerAdapter {
 	}
 	
 	private void returnDatabaseHealth(boolean[] errorFlag, boolean errorFound, MessageReceivedEvent evt) {
+		
 		if (errorFound == true) {
 			EmbedBuilder builder = new EmbedBuilder();
 			builder.setTitle("Errors found");

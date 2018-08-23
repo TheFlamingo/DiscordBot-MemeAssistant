@@ -8,11 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
-public class SaveMemes extends ListenerAdapter{
+public class DatabaseSaveLoad extends ListenerAdapter{
 	public static File saveFile = new File("C:/Users/Noaha/Desktop/MemeBot save files/save.txt");
 	
 	//represents different discrepancies in loading. See comments in checkDatabase()
@@ -39,7 +43,7 @@ public class SaveMemes extends ListenerAdapter{
 			}
 			else if ((strArgs[0] + strArgs[1]).equals(Ref.PREFIX + "load")) {
 				try {
-					read();
+					read(evt);
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					//e.printStackTrace();
@@ -75,16 +79,16 @@ public class SaveMemes extends ListenerAdapter{
 		pw.println(MemeLinksDB.memeDB.size()); 
 		//marker for read() to assign the next lines until next keyword to memeDB (as in it adds the links)
 		pw.println("memeDB-links"); 
-		//this is here to fix remove the weird brackets that are added when printing the links.
+		
 		for (int i = 0; i < MemeLinksDB.memeDB.size(); i++) { 
 			String finishedString = MemeLinksDB.memeDB.get(i).get(0);
-			finishedString.replace("[", "");
+			finishedString.replace("[", ""); //this is here to fix remove the weird brackets that are added when printing the links.
 			pw.println(finishedString);
 		}
 		pw.close();
 	}
 
-	public static void read() throws FileNotFoundException {
+	public static void read(MessageReceivedEvent evt) throws FileNotFoundException {
 		
 		Scanner inFile = new Scanner(saveFile);
 		
@@ -147,7 +151,16 @@ public class SaveMemes extends ListenerAdapter{
 		inFile.close();
 		
 		boolean validDatabase = checkDatabase(linkIndex, maxIterations);
-		if (!validDatabase) revertDatabase();
+		if (!validDatabase) sendErrorMessage(evt);
+		else backupDatabase();
+	}
+	
+	private static void sendErrorMessage(MessageReceivedEvent evt) {
+		EmbedBuilder builder = new EmbedBuilder();
+		builder.setTitle("Error loading database");
+		builder.setDescription("Please run meme health and revert database as needed.");
+		 
+		evt.getChannel().sendMessage(builder.build()).queue();
 	}
 		
 	public static boolean checkDatabase(int addedLinks, int linkDBSize) {
@@ -177,7 +190,6 @@ public class SaveMemes extends ListenerAdapter{
 			
 			return false;
 		}
-		
 		
 		System.out.println("Error flag 0 returns " + errorFlag[0]);
 		System.out.println("Error flag 1 returns " + errorFlag[1]);
