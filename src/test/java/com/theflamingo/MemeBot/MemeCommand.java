@@ -1,13 +1,8 @@
 package com.theflamingo.MemeBot;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
-
-import javax.swing.event.MenuDragMouseListener;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
@@ -55,7 +50,7 @@ public class MemeCommand extends ListenerAdapter {
 			}
 		} 
 		//use this to stop an error message from being sent even if a meme is sent. is set to true when a meme is found
-		if (foundMeme != true) {
+		if (!foundMeme) {
 			sendErrorMessage(evt.getTextChannel(), evt.getMember());
 		}
 	}
@@ -67,7 +62,7 @@ public class MemeCommand extends ListenerAdapter {
 		builder.setAuthor(member.getUser().getName(), member.getUser().getAvatarUrl(), member.getUser().getAvatarUrl());
 		builder.setColor(Color.decode("#EA2027"));
 		builder.setDescription("{} = Required, [] = Optional");
-		builder.addField("Proper usage: .yu meme {name}", "Options: kermit, hime, garrett, noah, jonty, calm", false);
+		builder.addField("Proper usage: meme send {name}", "Use meme list for options.", false);
 		channel.sendMessage(builder.build()).complete().delete().queueAfter(15, TimeUnit.SECONDS);
 	}
 

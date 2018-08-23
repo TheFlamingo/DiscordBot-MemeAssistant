@@ -8,10 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction;
-
-import org.omg.CORBA.SystemException;
-
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -20,7 +16,7 @@ public class SaveMemes extends ListenerAdapter{
 	public static File saveFile = new File("C:/Users/Noaha/Desktop/MemeBot save files/save.txt");
 	
 	//represents different discrepancies in loading. See comments in checkDatabase()
-	public static boolean[] errorFlag = new boolean[3];  
+	public static boolean[] errorFlag = new boolean[3];
 	
 	//this will store the latest version of the database, so it can be restored if there is an error in loading
 	public static List<List<String>> memeDBBackup; 
@@ -153,21 +149,21 @@ public class SaveMemes extends ListenerAdapter{
 		boolean validDatabase = checkDatabase(linkIndex, maxIterations);
 		if (!validDatabase) revertDatabase();
 	}
-	
-		public static boolean checkDatabase(int addedLinks, int linkDBSize) {
+		
+	public static boolean checkDatabase(int addedLinks, int linkDBSize) {
 			
 		//if the size of size of memeList does not equal the amount of added links, there's a discrepancy in the database
 		try {
 			if (MemeLinksDB.memeList.size() != addedLinks) errorFlag[0] = true;
-			
 		} catch (Exception e) {
 			errorFlag[0] = true;
 			
 			return false;
 		}
 		//if the amount of link Lists does not equal the size of memeList, there's a discrepancy in the database. This is separate
+		//from the first error because of Lists added vs Links added to these lists.
 		try {
-			if (linkDBSize != MemeLinksDB.memeList.size()) errorFlag[1] = true; //from the first error because of Lists added vs Links added to these lists.
+			if (linkDBSize != MemeLinksDB.memeList.size()) errorFlag[1] = true; 
 		} catch (Exception e) {
 			errorFlag[1] = true;
 			
